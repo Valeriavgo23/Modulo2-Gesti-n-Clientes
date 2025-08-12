@@ -147,7 +147,7 @@ public class App {
 
                     case 5:
                         System.out.printf("--Visualizar historial--\n");
-                        gestorUsuarios.showHistory(usuarioLogueado); //llama al metoodo mostrar historial
+                        gestorUsuarios.showHistory(usuarioLogueado);//llama al metoodo mostrar historial
                         break;
                     
 

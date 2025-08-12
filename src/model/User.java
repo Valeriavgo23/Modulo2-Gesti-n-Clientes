@@ -19,12 +19,19 @@ public class User{
  * @param username nombre de usuario
  * @param password contraseña
  * @param rol rol del usuario
- */
+ */ 
     public User(String fullName, String username, String password,Rol rol) {
         this.fullName = fullName;
         this.id = "U0" + countId++;
         this.username = username;
         this.password = password;
+        this.rol = rol;
+    }
+    public User(String id, String name, String user, String pass, Rol rol){
+        this.fullName = name;
+        this.id = id;
+        this.password = pass;
+        this.username = pass;
         this.rol = rol;
     }
 
