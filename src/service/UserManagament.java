@@ -8,96 +8,128 @@ import model.Rol;
 import model.User;
 
 public class UserManagament {
-    private ActionHistory[] actionHistories = new ActionHistory[100];
-    private int historyCount = 0;
+    /**Esta claase se encarga de manejar todos los metodos o acciones que puede realizar un usuario dentro del sistema
+     * Atributos privados
+     */
+    private ActionHistory[] actionHistories = new ActionHistory[100]; // Es un arreglo que guarda un maximo de 100 registros de acciones (ActionHistory)
+    private int historyCount = 0; //Contador para manejar la cantidad de acciones que se van creando
 
-    private User[] users;
-    private Integer countUsers = 0;
+    private User[] users; // creo un array vacio de la clase User
+    private Integer countUsers = 0; // Contador para manejar la cantidad de usuarios que se van creando
 
+    // Constructor
+    /**
+     * Crear un arreglo vacio de tipo User con el tamaño indicado por maxUsers
+     * @param maxUsers //cantidad maxima de usuarios
+     */
     public UserManagament(Integer maxUsers) {
         this.users = new User[maxUsers];
     }
 
+    //getter
+    /**
+     * Este metodo devuelve el arreglo actionHistories de la clase
+     */
     public ActionHistory[] getActionHistories() {
         return actionHistories;
     }
 
     // Método 1: Crear nuevos usuarios
-    public void createNewUser(User newFullName, Rol roles, User currentUser) {
-        if (roles.equals(Rol.ADMINISTRATOR)) {
-            if (countUsers < users.length) {
-                users[countUsers] = newFullName;
-                countUsers++;
-                System.out.println("Usuario creado correctamente");
+    public void createNewUser(User newUsuario, Rol roles, User currentUser) {
+    // Solo permitir si el que ejecuta es administrador
+    if (roles.equals(Rol.ADMINISTRATOR)) {
 
-                if (historyCount < actionHistories.length) {
+        // Verificar espacio para usuarios nuevos
+        if (countUsers  < users.length) {
+            users[countUsers] = newUsuario;
+            countUsers++;
+            if(currentUser != null)
+            System.out.println("Usuario creado correctamente");
+
+
+            // ---- Registro en historial ----
+            if (currentUser != null && currentUser.getRol() == Rol.ADMINISTRATOR) {
+                
+                if (historyCount < actionHistories.length) { //si hay espacio me guarda un nuevo historial
                     String description = "El administrador " + currentUser.getFullName() +
-                            " ha creado un nuevo usuario: " + newFullName.getFullName();
-                    ActionHistory newLog = new ActionHistory(
-                            description,
-                            new User(currentUser.getId(),
-                                    currentUser.getFullName(),
-                                    currentUser.getUsername(),
-                                    currentUser.getPassword(),
-                                    currentUser.getRol()
-                            )
-                    );
-                    actionHistories[historyCount++] = newLog;
+                                        " creó al usuario: " + newUsuario.getFullName();
+
+                    ActionHistory newLog = new ActionHistory(description, currentUser);
+
+                    System.out.println("Guardando en historial en posición: " + historyCount); // <-- Debug
+                    actionHistories[historyCount] = newLog;
+                    historyCount++; // Avanzar para que no se sobrescriba el anterior
+
                 } else {
-                    System.out.println("El historial de acciones está lleno.");
+                    System.out.println("El historial de acciones está lleno");
                 }
-            } else {
-                System.out.println("Array de usuarios lleno");
+
+            } else if (currentUser == null) {
+                System.err.println("Error: no hay un usuario logueado, no se registrará en historial");
             }
+
         } else {
-            System.out.println("Acceso Denegado");
+            System.out.println("No hay espacio para más usuarios");
         }
+
+    } else {
+        System.out.println("Acceso denegado: solo administradores pueden crear usuarios");
     }
+}
 
     // Método 2: Buscar usuario por ID o username
     public void findUser(Rol roles, User currentUser) {
         Scanner entrada = new Scanner(System.in);
-        if (roles.equals(Rol.ADMINISTRATOR) || roles.equals(Rol.STANDARD)) {
+        if (roles.equals(Rol.ADMINISTRATOR) || roles.equals(Rol.STANDARD)) { //Con esta condición indicio que tanto el administrador como el Estandar pueden utilizar este metodo
+
             entrada.nextLine();
+
             System.out.print("Ingrese el nombre de usuario: ");
-            var findName = entrada.nextLine();
+            var findName = entrada.nextLine(); //Pregunto el nombre de usuario de la persona a buscar
 
-            boolean found = false;
+            boolean found = false; //Como aun no se ha encontrado el usuario guardo el valor de false en la variables found
 
-            for (int i = 0; i < users.length; i++) {
+
+            for (int i = 0; i < users.length; i++) { //recorro cada usuario hasta encontrar al usuario
                 if (users[i] != null && findName.equalsIgnoreCase(users[i].getUsername())) {
+
+                    //Aqui muestro la información
                     System.out.println("Usuario encontrado:");
                     System.out.printf("""
                             Nombre Completo: %s
                             ID: %s
                             Username: %s
                             """, users[i].getFullName(), users[i].getId(), users[i].getUsername());
-                    found = true;
-                    break;
+                    found = true; // cambio false a true porque se encontro al usuario
+                
                 }
             }
-
-            if (currentUser != null && historyCount < actionHistories.length && roles.equals(Rol.ADMINISTRATOR)) {
-                String description = "El administrador " + currentUser.getFullName() + " realizó una búsqueda del usuario: " + findName;
+            //Aqui se valida el historial, si cumple con todas las condiciones, me guarda la acción
+            if (currentUser != null && historyCount < actionHistories.length && roles != null && roles.equals(Rol.ADMINISTRATOR)) {
+                    String description = "El administrador " + currentUser.getFullName() +
+                            " realizó una búsqueda del usuario: " + findName;
                 ActionHistory newLog = new ActionHistory(
-                        description,
-                        new User(currentUser.getId(),
-                                currentUser.getFullName(),
-                                currentUser.getUsername(),
-                                currentUser.getPassword(),
-                                currentUser.getRol()
-                        )
-                );
-                actionHistories[historyCount++] = newLog;
-            } else if (currentUser == null) {
-                System.err.println("Error no hay un usuario actual registrado");
-            } else if (historyCount >= actionHistories.length) {
+                description,
+                new User(currentUser.getId(),
+                currentUser.getFullName(),
+                currentUser.getUsername(),
+                currentUser.getPassword(),
+                currentUser.getRol()
+                )
+            );
+                    actionHistories[historyCount] = newLog;
+                    historyCount++;
+                } else if(currentUser == null){ //Si el usuario actual es igual a nulo es decir no existe, lanza un error
+                    System.err.println("Error no hay un usuario actual registrado");
+                }
+                else if (historyCount >= actionHistories.length) { // si el contador de acciones es mayor o igual a la cantidad de acciones permitidas, envia un error
                 System.out.println("El historial de acciones está lleno");
             }
 
-            if (!found) {
+        if (!found) { //si no encuentra al usuario
                 System.out.println("Usuario no encontrado");
             }
+
         } else {
             System.out.println("Usted no tiene permisos para utilizar esta función");
         }
@@ -113,24 +145,34 @@ public class UserManagament {
         System.out.println("Ingrese la contraseña: ");
         var updatePassword = entrada.nextLine();
 
-        int userIndex = -1;
+        int userIndex = -1; //defino la posicion del usuario actual
 
-        for (int i = 0; i < users.length; i++) {
+        for (int i = 0; i < users.length; i++) { // recorro cada usuario hasta encontrarlo
             if (users[i] != null &&
                     updateName.equalsIgnoreCase(users[i].getFullName()) &&
-                    updatePassword.equalsIgnoreCase(users[i].getPassword())) {
-                userIndex = i;
-                break;
+                    updatePassword.equalsIgnoreCase(users[i].getPassword())) { // si cumple con estas condiciones, lo guarda en la posicion i
+                    userIndex = i;
+                break; // se termina el ciclo
             }
         }
 
-        if (userIndex == -1) {
+        if (userIndex == -1) { // si el usuario es igual a la posición envia un error
             System.out.println("Error: no se encontró un usuario con ese nombre y contraseña");
             return;
         }
 
-        User userToUpdate = users[userIndex];
-
+        /**
+         * Obtiene el usuario encontrado en la posición  "userIndex" del array  "users"
+         * Esto No crea un nuevo usuario, sino que guarda una referencia al existente
+         * para poder acceder y modificar sus datos mas facilmente
+         */
+        User userToUpdate = users[userIndex]; 
+        
+        /**
+         * Solo los usuarios de tipos Administrador pueden actualizar cualquirer perfil
+         * Aqui se crea una condición si usuario es del rol administrativo, puede actualizar cualquier perfil
+         * si no, envia un error
+         */
         if (currentUserRol.equals(Rol.ADMINISTRATOR)) {
             System.out.println("Permiso concedido: Administrador");
         } else if (currentUserRol.equals(Rol.STANDARD)) {
@@ -155,143 +197,140 @@ public class UserManagament {
 
         System.out.println("Datos actualizados correctamente");
 
-        if (currentUser != null) {
-            String description;
-            if (currentUserRol.equals(Rol.ADMINISTRATOR)) {
-                description = "El administrador " + currentUser.getFullName() + " ha actualizado al usuario " + newName;
-            } else {
-                description = "El usuario estandar " + currentUser.getFullName() + " ha actualizado su propio perfil";
+        //logica del historial
+        if (currentUser != null && historyCount < actionHistories.length && currentUserRol!= null && currentUserRol.equals(Rol.ADMINISTRATOR)) {
+                    String description = "El administrador " + currentUser.getFullName() +
+                            " actualizo al usuario: " + updateName;
+                ActionHistory newLog = new ActionHistory(
+                description,
+                new User(currentUser.getId(),
+                currentUser.getFullName(),
+                currentUser.getUsername(),
+                currentUser.getPassword(),
+                currentUser.getRol()
+                )
+            );
+                    actionHistories[historyCount] = newLog;
+                    historyCount++;
+                } else if(currentUser == null){ //Si el usuario actual es igual a nulo es decir no existe, lanza un error
+                    System.err.println("Error no hay un usuario actual registrado");
+                }
+                else if (historyCount >= actionHistories.length) { // si el contador de acciones es mayor o igual a la cantidad de acciones permitidas, envia un error
+                System.out.println("El historial de acciones está lleno");
             }
+    
+        
 
-            ActionHistory newLog = new ActionHistory(description,
-                    new User(currentUser.getId(),
-                            currentUser.getFullName(),
-                            currentUser.getUsername(),
-                            currentUser.getPassword(),
-                            currentUser.getRol()));
-
-            if (historyCount < actionHistories.length) {
-                actionHistories[historyCount++] = newLog;
-            } else {
-                System.out.println("Historial lleno");
-            }
-        } else {
-            System.err.println("Error: no hay un usuario actual registrado");
-        }
     }
 
     // Método 4: Eliminar usuario
     public void deleteUser(Rol rolUser, User currentUser) {
         Scanner entrada = new Scanner(System.in);
+
         if (rolUser.equals(Rol.ADMINISTRATOR)) {
             System.out.print("Digite el nombre del usuario a eliminar: ");
             var deleteName = entrada.nextLine();
 
-            boolean found = false;
-            for (int i = 0; i < users.length; i++) {
-                if (users[i] != null && deleteName.equalsIgnoreCase(users[i].getFullName())) {
+            boolean found = false; //se definide found en false inicialmente antes de buscar al usuario
+
+            for (int i = 0; i < users.length; i++) { // se recorre cada usuario
+                if (users[i] != null && deleteName.equalsIgnoreCase(users[i].getFullName())) {// si lo encuentra y tienen el mismo nombre lo elimina
                     users[i] = null;
-                    countUsers--; // Decrementar el contador de usuarios
-                    found = true;
-                    break;
+                    found = true; // se cambia found a true porque ya encontro al usuario
+                    break; //terminae el ciclo
                 }
             }
+
             if (found) {
-                System.out.println("Usuario '" + deleteName + "' ha sido eliminado.");
-                // Logica del historial, simplificada
-                if (historyCount < actionHistories.length) {
-                    String description = "El administrador " + currentUser.getFullName() + " ha eliminado al usuario " + deleteName;
-                    ActionHistory newLog = new ActionHistory(
-                            description,
-                            new User(currentUser.getId(),
-                                    currentUser.getFullName(),
-                                    currentUser.getUsername(),
-                                    currentUser.getPassword(),
-                                    currentUser.getRol()
-                            )
-                    );
-                    actionHistories[historyCount++] = newLog;
-                } else {
-                    System.out.println("El historial de acciones está lleno.");
+                System.out.println("Usuario '" + deleteName + "' ha sido eliminado."); // envia un mensaje si lo encuentra
+
+            //logica de las acciones
+            if (currentUser != null && historyCount < actionHistories.length && rolUser!= null && rolUser.equals(Rol.ADMINISTRATOR)) {
+                    String description = "El administrador " + currentUser.getFullName() +
+                            " elimino al usuario: " + deleteName;
+                ActionHistory newLog = new ActionHistory(
+                description,
+                new User(currentUser.getId(),
+                currentUser.getFullName(),
+                currentUser.getUsername(),
+                currentUser.getPassword(),
+                currentUser.getRol()
+                )
+            );
+                    actionHistories[historyCount] = newLog;
+                    historyCount++;
+                } else if(currentUser == null){ //Si el usuario actual es igual a nulo es decir no existe, lanza un error
+                    System.err.println("Error no hay un usuario actual registrado");
                 }
-            } else {
-                System.out.println("Usuario '" + deleteName + "' no encontrado.");
+                else if (historyCount >= actionHistories.length) { // si el contador de acciones es mayor o igual a la cantidad de acciones permitidas, envia un error
+                System.out.println("El historial de acciones está lleno");
             }
-        } else {
-            System.out.println("Usted no tiene permisos para realizar esta acción.");
+
+        }if(!found){
+            System.out.println("Usuario no encontrado");
+        }
+            
+            
         }
     }
+        
 
-    // Método para ver todos los usuarios existentes
-    public void showUser() {
-        for (User u : users) {
-            if (u != null) {
+
+
+    //Metodo para ver todos los usuarios existentes
+    public void showUser(){
+        for(User u : users){
+            if(u != null){
                 System.out.printf("--%s (username: %s)\n ", u.getFullName(), u.getUsername());
             }
         }
     }
 
-    // Método para el login del usuario
-    public User login(String username, String password) {
-        for (int i = 0; i < users.length; i++) {
-            if (users[i] != null &&
-                    users[i].getUsername().equals(username) &&
-                    users[i].getPassword().equals(password)) {
-                System.out.printf("Bienvenido %s, es un gusto verte de nuevo.%n", users[i].getFullName());
-                return users[i];
-            }
-        }
-        System.out.println("❌ Usuario o contraseña incorrectos.");
-        return null;
-    }
+    //metodo para el login del usuario
+    public User login(String username, String password) { //creo dos paratmetros, el nombre de usuario y la contraseña
+    for (int i = 0; i < users.length; i++) { // recorro cada usuario hasta encontrarlo
+        if (users[i] != null &&
+            users[i].getUsername().equals(username) &&
+            users[i].getPassword().equals(password)) { 
 
-    // Método para mostrar el historial del usuario actual
-    public void showHistory(User user) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        boolean found = false;
-        System.out.println("--- Historial de acciones de " + user.getFullName() + " ---");
-        for (int i = 0; i < historyCount; i++) {
-            ActionHistory ah = actionHistories[i];
-            if (ah != null && ah.getPerformigUser().getId().equals(user.getId())) {
-                String formattedDate = sdf.format(new Date(ah.getTime()));
-                System.out.printf("%s - %s\n", formattedDate, ah.getDescription());
-                found = true;
-            }
-        }
-        if (!found) {
-            System.out.println("No hay acciones para mostrar");
+            System.out.printf("Bienvenido %s, es un gusto verte de nuevo.%n", users[i].getFullName());
+            return users[i]; // Retorna el usuario encontrado
         }
     }
+    System.out.println("❌ Usuario o contraseña incorrectos.");
+    return null; // Si no se encontró
+}
 
-    // Nuevo método para que el administrador pueda ver todo el historial
-    public void showAllHistory(User currentUser) {
-        if (currentUser.getRol().equals(Rol.ADMINISTRATOR)) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            System.out.println("--- Historial de todas las acciones del sistema ---");
-            if (historyCount == 0) {
-                System.out.println("El historial está vacío.");
-                return;
-            }
-            for (int i = 0; i < historyCount; i++) {
-                ActionHistory ah = actionHistories[i];
-                if (ah != null) {
-                    String formattedDate = sdf.format(new Date(ah.getTime()));
-                    System.out.printf("%s - Usuario: %s - Acción: %s\n",
-                            formattedDate, ah.getPerformigUser().getFullName(), ah.getDescription());
-                }
-            }
-        } else {
-            System.out.println("Acceso denegado. Esta función es solo para administradores.");
+//Metodo para mostrar el historial
+/**
+ * Muestra el historial de acciones
+ */
+public void showHistory(User user){
+    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    boolean found = false;
+    for (int i = 0; i < historyCount; i++){
+        ActionHistory ah = actionHistories[i];
+        if (ah != null && ah.getPerformigUser().getId().equals(user.getId())){
+            String formattedDate = sdf.format(new Date(ah.getTime()));
+            System.out.printf("%s - %s\n", formattedDate, ah.getDescription());
+            found = true;
         }
     }
-
-    // Método para comprobar que el nombre de usuario sea único
-    public boolean usernameExist(String username) {
-        for (int i = 0; i < countUsers; i++) {
-            if (users[i] != null && users[i].getUsername().equalsIgnoreCase(username)) {
-                return true;
-            }
-        }
-        return false;
+    if (!found) {
+        System.out.println("No hay acciones para mostrar");
     }
 }
+    /**
+     * Metodo para comprobar que el nombre de usuario sea unico
+     */
+    public boolean usernameExist(String username){
+        for(int i = 0; i < countUsers; i++){ //recorre el contador de usuarios
+            if (users[i] != null && users[i].getUsername().equalsIgnoreCase(username)){ // Valida si hay dos usernames iguales
+                return true; // devuelve true
+
+            }
+        }
+        return false; // si no cumple con esa condición devuelve false
+    }
+}
+

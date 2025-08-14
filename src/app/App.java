@@ -124,14 +124,14 @@ public class App {
                         }
                         newUser = new User(newFullName, usern, newPass, roles); //envia los datos 
                         if (newUser != null){
-                        gestorUsuarios.createNewUser(newUser, usuarioLogueado.getRol(), newUser); // crea al nuevo usuario
+                        gestorUsuarios.createNewUser(newUser, usuarioLogueado.getRol(), usuarioLogueado); // crea al nuevo usuario
                         }
                     
                         break;
 
                     case 2:
                         System.out.print("--Actualizar información de un usuario--\n");
-                        gestorUsuarios.updateUser(usuarioLogueado.getRol(),newUser); //llama al metodo actualizar usuario
+                        gestorUsuarios.updateUser(usuarioLogueado.getRol(),usuarioLogueado); //llama al metodo actualizar usuario
                         break;
 
                     case 3:
@@ -142,7 +142,7 @@ public class App {
                     case 4:
                         System.out.printf("--Eliminar a un usuario--\n");
                     
-                        gestorUsuarios.deleteUser(usuarioLogueado.getRol(),newUser); //llama al metodo eliminar usuario
+                        gestorUsuarios.deleteUser(usuarioLogueado.getRol(),usuarioLogueado); //llama al metodo eliminar usuario
                         break;
 
                     case 5:
