@@ -1,18 +1,21 @@
-## Getting Started
+## Gestión de Usuarios
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+-Este programa simula los comportamientos normales que tiene una aplicación tales como:
 
-## Folder Structure
+1.Registrar usuarios: Este metodo permite crear un usuario con su nombre, nombre de usuarios, contraseña y rol.
 
-The workspace contains two folders by default, where:
+2.Iniciar sesión: Esta función permite a un usuaio ya registrado en el sistema loguearse, permitiendole ofrecer otras funciones o opciones.
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+### Funcionamiento Del logín
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+-Este cuenta con unas sub opciones al momento del usuario loguearse
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+-Actualizar información: Permite cambiar el nombre del usuario y su contraseña.
 
-## Dependency Management
+-Eliminar Usuario: Elimina a un usuario del sistema.
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+-Buscar Usuario: Permite buscar a un usuario existente dentro del sistema
+
+-Ver historial: Permite tener una visualización clara de las acciones que va realizando el usuario logueado dentro del sistema.
+
+En este proyecto se puso en practica todo lo visto en el modulo 2: Programación Orientada a Objetos.

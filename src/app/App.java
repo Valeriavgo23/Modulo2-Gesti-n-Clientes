@@ -152,14 +152,14 @@ public class App {
                     
 
                     case 6:
-                        System.out.println("Cerrando sesión...");
+                        System.out.println("Cerrando sesión...");//cierra sesión
                         break; 
 
                     default:
                         System.err.println("Opción no válida");
                         break;
                 }
-            } while (opcionMenu != 6);
+            } while (opcionMenu != 6); //repite todo el ciclo siempre y cuando la opción ingresada no sea 6
 
         } else if (menu != 0) {
             System.out.println("Opción no válida");

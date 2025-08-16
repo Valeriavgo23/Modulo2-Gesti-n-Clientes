@@ -31,9 +31,7 @@ public class ActionHistory {
     public User getPerformigUser() {
         return performigUser;
     }
-    public void showHistory(User user){
-
-    }
+    
     
 
     

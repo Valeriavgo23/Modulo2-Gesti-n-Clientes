@@ -64,13 +64,14 @@ public class UserManagament {
                     System.out.println("El historial de acciones está lleno");
                 }
 
-            } else if (currentUser == null) {
+            } else if (currentUser == null) {//Si el usuario logueado es igual a null, es decir esta vacio me muestra un error
                 System.err.println("Error: no hay un usuario logueado, no se registrará en historial");
             }
 
         } else {
             System.out.println("No hay espacio para más usuarios");
         }
+
 
     } else {
         System.out.println("Acceso denegado: solo administradores pueden crear usuarios");
@@ -108,6 +109,7 @@ public class UserManagament {
             if (currentUser != null && historyCount < actionHistories.length && roles != null && roles.equals(Rol.ADMINISTRATOR)) {
                     String description = "El administrador " + currentUser.getFullName() +
                             " realizó una búsqueda del usuario: " + findName;
+                            //Aqui se crea un objeto de tipo ActionHistory llamado newLog y le paso, la descripción y sus datos personales
                 ActionHistory newLog = new ActionHistory(
                 description,
                 new User(currentUser.getId(),
@@ -117,7 +119,7 @@ public class UserManagament {
                 currentUser.getRol()
                 )
             );
-                    actionHistories[historyCount] = newLog;
+                    actionHistories[historyCount] = newLog;//Aqui se inserta el nuevo registro, en la posición historyCount del arreglo
                     historyCount++;
                 } else if(currentUser == null){ //Si el usuario actual es igual a nulo es decir no existe, lanza un error
                     System.err.println("Error no hay un usuario actual registrado");
@@ -139,6 +141,7 @@ public class UserManagament {
     public void updateUser(Rol currentUserRol, User currentUser) {
         Scanner entrada = new Scanner(System.in);
 
+        //Se piden los datos como el nombre y contraseña, para validar que ese usuario exista
         System.out.println("Ingrese el nombre completo: ");
         var updateName = entrada.nextLine();
 
@@ -186,6 +189,7 @@ public class UserManagament {
             return;
         }
 
+        //Se actualizan los nuevos datos
         System.out.println("Ingrese el nuevo nombre completo: ");
         var newName = entrada.nextLine();
 
@@ -266,7 +270,7 @@ public class UserManagament {
                 System.out.println("El historial de acciones está lleno");
             }
 
-        }if(!found){
+        }if(!found){//si es diferente a found, me muestra un mensaje
             System.out.println("Usuario no encontrado");
         }
             
